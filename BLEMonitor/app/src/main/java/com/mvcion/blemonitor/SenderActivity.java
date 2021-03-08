@@ -54,7 +54,7 @@ public class SenderActivity extends Activity {
 
             ParcelUuid serviceUuid = ServiceUuis.getServiceUuid();
             advertiseDataBuilder.addServiceUuid(serviceUuid);
-            advertiseSettingsBuilder.setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_BALANCED);
+            advertiseSettingsBuilder.setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY);
             advertiseSettingsBuilder.setConnectable(true);
 
             AdvertiseData advertiseData = advertiseDataBuilder.build();
