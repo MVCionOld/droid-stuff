@@ -49,18 +49,19 @@ public class SenderActivity extends Activity {
                 return;
             }
 
-            AdvertiseData.Builder advertiseDataBuilder = new AdvertiseData.Builder();
-            AdvertiseSettings.Builder advertiseSettingsBuilder = new AdvertiseSettings.Builder();
-
             ParcelUuid serviceUuid = ServiceUuis.getServiceUuid();
-            advertiseDataBuilder.addServiceUuid(serviceUuid);
-            advertiseSettingsBuilder.setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY);
-            advertiseSettingsBuilder.setConnectable(true);
+            AdvertiseData.Builder advertiseDataBuilder = new AdvertiseData
+                    .Builder()
+                    .addServiceUuid(serviceUuid);
 
-            AdvertiseData advertiseData = advertiseDataBuilder.build();
+            AdvertiseSettings.Builder advertiseSettingsBuilder = new AdvertiseSettings
+                    .Builder()
+                    .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY)
+                    .setConnectable(true);
+
             bluetoothLeAdvertiser.startAdvertising(
                     /*settings = */advertiseSettingsBuilder.build(),
-                    /*advertiseData = */advertiseData,
+                    /*advertiseData = */advertiseDataBuilder.build(),
                     /*scanResponse = */null,
                     /*callback = */leAdvertiseCallback);
         }
