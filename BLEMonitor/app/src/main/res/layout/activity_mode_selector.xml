@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ModeSelectorActivity"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="50"
+        android:gravity="center"
+        android:text="Receiver"
+        android:textColor="@color/black"
+        android:textSize="40sp"
+        android:id="@+id/mode_selector__text_view__receiver"
+        />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="50"
+        android:gravity="center"
+        android:text="Sender"
+        android:textColor="@color/black"
+        android:textSize="40sp"
+        android:id="@+id/mode_selector__text_view__sender"
+        />
+
+</LinearLayout>

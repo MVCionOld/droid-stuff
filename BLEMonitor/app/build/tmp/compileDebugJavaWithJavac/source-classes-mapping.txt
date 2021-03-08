@@ -1,0 +1,12 @@
+com/mvcion/blemonitor/BuildConfig.java
+ com.mvcion.blemonitor.BuildConfig
+com/mvcion/blemonitor/MainActivity.java
+ com.mvcion.blemonitor.MainActivity
+com/mvcion/blemonitor/SenderActivity.java
+ com.mvcion.blemonitor.SenderActivity
+com/mvcion/blemonitor/ModeSelectorActivity.java
+ com.mvcion.blemonitor.ModeSelectorActivity
+com/mvcion/blemonitor/ReceiverActivity.java
+ com.mvcion.blemonitor.ReceiverActivity
+ com.mvcion.blemonitor.ReceiverActivity$1
+ com.mvcion.blemonitor.ReceiverActivity$2
