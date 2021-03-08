@@ -6,4 +6,19 @@
     android:layout_height="match_parent"
     tools:context=".SenderActivity">
 
+    <ProgressBar
+        android:id="@+id/sender__progress_bar__running"
+        android:layout_width="150sp"
+        android:layout_height="150sp"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:progress="80"
+        android:progressDrawable="@drawable/spinning_progress"
+        android:indeterminate="true"
+        android:layout_centerInParent="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
