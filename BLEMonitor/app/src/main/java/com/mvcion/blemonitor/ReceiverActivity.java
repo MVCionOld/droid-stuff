@@ -5,17 +5,21 @@ import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
+import android.bluetooth.le.ScanFilter;
 import android.bluetooth.le.ScanResult;
-import android.os.Build;
+import android.bluetooth.le.ScanSettings;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
 
-import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 
+import com.mvcion.blemonitor.common.ServiceUuis;
+
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -43,7 +47,7 @@ public class ReceiverActivity extends Activity {
         public void onScanResult(int callbackType, ScanResult result) {
             super.onScanResult(callbackType, result);
             if (result != null) {
-                Log.d(TAG, String.valueOf(result.getRssi()));
+                Log.d(TAG, result.toString());
                 queue.add(result);
             } else {
                 Log.w(TAG, "Nullable ScanResult.");
@@ -51,7 +55,26 @@ public class ReceiverActivity extends Activity {
         }
     };
 
-    private Thread scanResultsProducer = new Thread(() -> bluetoothLeScanner.startScan(leScanCallback));
+    private Thread scanResultsProducer = new Thread(() -> {
+
+        List<ScanFilter> scanFilters = new ArrayList<ScanFilter>(){{
+                add(new ScanFilter
+                        .Builder()
+                        .setServiceUuid(ServiceUuis.getServiceUuid())
+                        .build());
+        }};
+
+        ScanSettings scanSettings = new ScanSettings
+                .Builder()
+                .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
+                .setCallbackType(ScanSettings.CALLBACK_TYPE_ALL_MATCHES)
+                .setMatchMode(ScanSettings.MATCH_MODE_AGGRESSIVE)
+                .setNumOfMatches(ScanSettings.MATCH_NUM_ONE_ADVERTISEMENT)
+                .setReportDelay(0L)
+                .build();
+
+        bluetoothLeScanner.startScan(scanFilters, scanSettings, leScanCallback);
+    });
 
     private Thread scanResultsConsumer = new Thread(new Runnable() {
 
@@ -67,9 +90,7 @@ public class ReceiverActivity extends Activity {
             while (currTime - startTime < CONSUMING_PERIOD_NANOS) {
                 if (queue.size() > 0) {
                     ScanResult scanResult = queue.remove();
-                    if (scanResult.getRssi() > -70) {
-                        set.add(scanResult.getDevice().toString());
-                    }
+                    set.add(scanResult.getDevice().toString());
                 }
                 currTime = System.nanoTime();
             }
@@ -105,7 +126,6 @@ public class ReceiverActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_receiver);
 
         ActivityCompat.requestPermissions(this, new String[]{
                 Manifest.permission.ACCESS_FINE_LOCATION,
@@ -127,5 +147,7 @@ public class ReceiverActivity extends Activity {
                 Log.e(TAG, "Scanner is not found.");
             }
         }
+
+        setContentView(R.layout.activity_receiver);
     }
 }
