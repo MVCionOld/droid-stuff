@@ -40,15 +40,33 @@
                 android:text="Update frequency: 5s"
                 />
 
-            <TextView
+            <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_gravity="center"
-                android:gravity="center"
-                android:text="@string/zero"
-                android:id="@+id/receiver__text_view__counter"
-                android:textSize="120sp"
-                />
+                android:gravity="center">
+
+                <ProgressBar
+                    android:layout_width="300sp"
+                    android:layout_height="300sp"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:indeterminate="false"
+                    android:max="100"
+                    android:progress="0"
+                    android:progressDrawable="@drawable/spinning_progress"
+                    />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:text="@string/zero"
+                    android:id="@+id/receiver__text_view__counter"
+                    android:textSize="120sp"
+                    />
+            </FrameLayout>
 
         </LinearLayout>
 
