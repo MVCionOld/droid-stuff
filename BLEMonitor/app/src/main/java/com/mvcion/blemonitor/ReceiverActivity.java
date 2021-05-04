@@ -24,22 +24,18 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-
 public class ReceiverActivity extends Activity {
 
     private final String TAG = "ReceiverActivity";
     private final String RECEIVER_ITERATION_PATTERN = "Receiver iteration: {0}";
     private final String UNIQUE_DEVICES_TOTAL_PATTERN = "Unique devices total: {0}";
     private final String UPDATE_FREQUENCY_PATTERN = "Update frequency: {0}s";
-
     private final long CONSUMING_PERIOD_NANOS = 5_000_000_000L;
     private int receiverIteration = 0;
     private Set<String> allUniqueDevices = new HashSet<>();
     private Queue<ScanResult> queue = new ConcurrentLinkedQueue<>();
-
     private BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
     private BluetoothLeScanner bluetoothLeScanner;
-
 
     private final ScanCallback leScanCallback = new ScanCallback() {
 
