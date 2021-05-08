@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ReceiverActivity">
+    tools:context=".ScannerActivity">
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -20,7 +20,7 @@
                 android:layout_marginStart="10sp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/receiver__text_view__receiver_iteration"
+                android:id="@+id/scanner__text_view__scanner_iteration"
                 android:text="Receiver iteration: 0"
                 />
 
@@ -28,7 +28,7 @@
                 android:layout_marginStart="10sp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/receiver__text_view__unique_devices"
+                android:id="@+id/scanner__text_view__unique_devices"
                 android:text="Unique devices total: 0"
                 />
 
@@ -36,7 +36,7 @@
                 android:layout_marginStart="10sp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/receiver__text_view__update_frequency"
+                android:id="@+id/scanner__text_view__update_frequency"
                 android:text="Update frequency: 5s"
                 />
 
@@ -63,7 +63,7 @@
                     android:layout_gravity="center"
                     android:gravity="center"
                     android:text="@string/zero"
-                    android:id="@+id/receiver__text_view__counter"
+                    android:id="@+id/scanner__text_view__nearby_devices_counter"
                     android:textSize="120sp"
                     />
             </FrameLayout>

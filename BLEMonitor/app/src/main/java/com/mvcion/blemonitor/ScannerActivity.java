@@ -8,12 +8,14 @@ import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanFilter;
 import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
 
 import androidx.core.app.ActivityCompat;
 
+import com.mvcion.blemonitor.common.PreferencesFacade;
 import com.mvcion.blemonitor.common.ServiceUuis;
 
 import java.text.MessageFormat;
@@ -24,16 +26,22 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-public class ReceiverActivity extends Activity {
+public class ScannerActivity extends Activity {
 
-    private final String TAG = "ReceiverActivity";
-    private final String RECEIVER_ITERATION_PATTERN = "Receiver iteration: {0}";
+    private final String TAG = "ScannerActivity";
+    private final String SCANNER_ITERATION_PATTERN = "Scanner iteration: {0}";
     private final String UNIQUE_DEVICES_TOTAL_PATTERN = "Unique devices total: {0}";
     private final String UPDATE_FREQUENCY_PATTERN = "Update frequency: {0}s";
-    private final long CONSUMING_PERIOD_NANOS = 5_000_000_000L;
-    private int receiverIteration = 0;
-    private Set<String> allUniqueDevices = new HashSet<>();
-    private Queue<ScanResult> queue = new ConcurrentLinkedQueue<>();
+
+    private long processingWindowNanos;
+    private long reportDelayMillis;
+    private int scannerMode;
+    private int callbackType;
+    private int matchMode;
+    private int numOfMatches;
+
+    private Queue<ScanResult> leDevicesStream = new ConcurrentLinkedQueue<>();
+
     private BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
     private BluetoothLeScanner bluetoothLeScanner;
 
@@ -44,49 +52,57 @@ public class ReceiverActivity extends Activity {
             super.onScanResult(callbackType, result);
             if (result != null) {
                 Log.d(TAG, result.toString());
-                queue.add(result);
+                leDevicesStream.add(result);
             } else {
                 Log.w(TAG, "Nullable ScanResult.");
             }
         }
     };
 
-    private Thread scanResultsProducer = new Thread(() -> {
+    private void fetchScannerPreferences(Context context) {
+        processingWindowNanos = PreferencesFacade.getProcessingWindowNanos(context);
+        reportDelayMillis = PreferencesFacade.getReportDelayMillis(context);
+        scannerMode = PreferencesFacade.getScannerMode(context);
+        callbackType = PreferencesFacade.getCallbackType(context);
+        matchMode = PreferencesFacade.getMatchMode(context);
+        numOfMatches = PreferencesFacade.getNumOfMatches(context);
+    }
 
+    private Thread scanResultsProducer = new Thread(() -> {
         List<ScanFilter> scanFilters = new ArrayList<ScanFilter>(){{
                 add(new ScanFilter
                         .Builder()
                         .setServiceUuid(ServiceUuis.getServiceUuid())
                         .build());
         }};
-
         ScanSettings scanSettings = new ScanSettings
                 .Builder()
-                .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
-                .setCallbackType(ScanSettings.CALLBACK_TYPE_ALL_MATCHES)
-                .setMatchMode(ScanSettings.MATCH_MODE_AGGRESSIVE)
-                .setNumOfMatches(ScanSettings.MATCH_NUM_ONE_ADVERTISEMENT)
-                .setReportDelay(0L)
+                .setScanMode(scannerMode)
+                .setCallbackType(callbackType)
+                .setMatchMode(matchMode)
+                .setNumOfMatches(numOfMatches)
+                .setReportDelay(reportDelayMillis)
                 .build();
-
         bluetoothLeScanner.startScan(scanFilters, scanSettings, leScanCallback);
     });
 
     private Thread scanResultsConsumer = new Thread(new Runnable() {
 
-        private volatile Set<String> set = new HashSet<>();
+        private int scannerIteration = 0;
+        private Set<String> uniqueLeDevices = new HashSet<>();
+        private volatile Set<String> nearbyDevices = new HashSet<>();
 
         private void consumeScanResults() {
-            if (set != null) {
-                allUniqueDevices.addAll(set);
+            if (nearbyDevices != null) {
+                uniqueLeDevices.addAll(nearbyDevices);
             }
-            set = new HashSet<>();
+            nearbyDevices = new HashSet<>();
             final long startTime = System.nanoTime();
             long currTime = System.nanoTime();
-            while (currTime - startTime < CONSUMING_PERIOD_NANOS) {
-                if (queue.size() > 0) {
-                    ScanResult scanResult = queue.remove();
-                    set.add(scanResult.getDevice().toString());
+            while (currTime - startTime < processingWindowNanos) {
+                if (leDevicesStream.size() > 0) {
+                    ScanResult scanResult = leDevicesStream.remove();
+                    nearbyDevices.add(scanResult.getDevice().toString());
                 }
                 currTime = System.nanoTime();
             }
@@ -96,26 +112,28 @@ public class ReceiverActivity extends Activity {
         public void run() {
             while (true) {
                 consumeScanResults();
-                updateLeReceiverUi(set.size());
-                receiverIteration++;
+                updateLeScannerUi(scannerIteration++, nearbyDevices.size(), uniqueLeDevices.size());
             }
         }
     });
 
-    private void updateLeReceiverUi(int newCounterValue) {
-        TextView counterTextView = findViewById(R.id.receiver__text_view__counter);
-        TextView receiverIterationTextView = findViewById(R.id.receiver__text_view__receiver_iteration);
-        TextView uniqueDevicesTotalTextView = findViewById(R.id.receiver__text_view__unique_devices);
-        TextView updateFrequencyTextView = findViewById(R.id.receiver__text_view__update_frequency);
+    private void updateLeScannerUi(int scannerIteration, int devicesNearbyNum, int allUniqueDevicesNum) {
+        TextView nearbyDevicesCounterTextView = findViewById(R.id.scanner__text_view__nearby_devices_counter);
+        TextView scannerIterationTextView = findViewById(R.id.scanner__text_view__scanner_iteration);
+        TextView uniqueDevicesTotalTextView = findViewById(R.id.scanner__text_view__unique_devices);
+        TextView updateFrequencyTextView = findViewById(R.id.scanner__text_view__update_frequency);
 
         runOnUiThread(() -> {
-            counterTextView.setText(MessageFormat.format("{0}", newCounterValue));
-            receiverIterationTextView.setText(MessageFormat.format(
-                    RECEIVER_ITERATION_PATTERN, receiverIteration));
+            nearbyDevicesCounterTextView.setText(MessageFormat.format("{0}", devicesNearbyNum));
+            scannerIterationTextView.setText(MessageFormat.format(
+                    SCANNER_ITERATION_PATTERN, scannerIteration
+            ));
             uniqueDevicesTotalTextView.setText(MessageFormat.format(
-                    UNIQUE_DEVICES_TOTAL_PATTERN, allUniqueDevices.size()));
+                    UNIQUE_DEVICES_TOTAL_PATTERN, allUniqueDevicesNum
+            ));
             updateFrequencyTextView.setText(MessageFormat.format(
-                    UPDATE_FREQUENCY_PATTERN, CONSUMING_PERIOD_NANOS / 1_000_000_000.0));
+                    UPDATE_FREQUENCY_PATTERN, processingWindowNanos / 1_000_000_000.0
+            ));
         });
     }
 
@@ -134,9 +152,12 @@ public class ReceiverActivity extends Activity {
             if (!bluetoothAdapter.isEnabled()) {
                 bluetoothAdapter.enable();
             }
+
             bluetoothLeScanner = bluetoothAdapter.getBluetoothLeScanner();
+
             if (bluetoothLeScanner != null) {
                 Log.v(TAG, "Scanner is found.");
+                fetchScannerPreferences(this);
                 scanResultsProducer.start();
                 scanResultsConsumer.start();
             } else {

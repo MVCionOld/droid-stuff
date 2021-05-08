@@ -34,11 +34,11 @@ public class ModeSelectorActivity extends Activity {
 
         setTextViewOnClickListener(
                 /*textView = */findViewById(R.id.mode_selector__text_view__receiver),
-                /*intent = */new Intent(this, ReceiverActivity.class)
+                /*intent = */new Intent(this, ScannerActivity.class)
         );
         setTextViewOnClickListener(
                 /*textView = */findViewById(R.id.mode_selector__text_view__sender),
-                /*intent = */ new Intent(this, SenderActivity.class)
+                /*intent = */ new Intent(this, AdvertiserActivity.class)
         );
     }
 }

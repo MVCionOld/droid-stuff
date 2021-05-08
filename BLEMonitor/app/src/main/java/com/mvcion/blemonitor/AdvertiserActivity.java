@@ -7,17 +7,23 @@ import android.bluetooth.le.AdvertiseCallback;
 import android.bluetooth.le.AdvertiseData;
 import android.bluetooth.le.AdvertiseSettings;
 import android.bluetooth.le.BluetoothLeAdvertiser;
+import android.content.Context;
 import android.os.Bundle;
 import android.os.ParcelUuid;
 import android.util.Log;
 
 import androidx.core.app.ActivityCompat;
 
+import com.mvcion.blemonitor.common.PreferencesFacade;
 import com.mvcion.blemonitor.common.ServiceUuis;
 
-public class SenderActivity extends Activity {
+public class AdvertiserActivity extends Activity {
 
-    private final String TAG = "SenderActivity";
+    private final String TAG = "AdvertiserActivity";
+
+    private int advertiserMode;
+    private int advertiserTxPower;
+    private boolean isConnectable;
 
     private BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
     private BluetoothLeAdvertiser bluetoothLeAdvertiser;
@@ -36,6 +42,12 @@ public class SenderActivity extends Activity {
             Log.e(TAG, String.valueOf(errorCode));
         }
     };
+
+    private void fetchAdvertiserPreferences(Context context) {
+        advertiserMode = PreferencesFacade.getAdvertiserMode(context);
+        advertiserTxPower = PreferencesFacade.getAdvertiserTxPower(context);
+        isConnectable = PreferencesFacade.getAdvertiserIsConnectable(context);
+    }
 
     private Thread scanAdvertiser = new Thread(new Runnable() {
         @Override
@@ -56,8 +68,9 @@ public class SenderActivity extends Activity {
 
             AdvertiseSettings.Builder advertiseSettingsBuilder = new AdvertiseSettings
                     .Builder()
-                    .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY)
-                    .setConnectable(true);
+                    .setAdvertiseMode(advertiserMode)
+                    .setTxPowerLevel(advertiserTxPower)
+                    .setConnectable(isConnectable);
 
             bluetoothLeAdvertiser.startAdvertising(
                     /*settings = */advertiseSettingsBuilder.build(),
@@ -83,6 +96,8 @@ public class SenderActivity extends Activity {
                 Log.v(TAG, "Enabling Bluetooth Adapter.");
                 bluetoothAdapter.enable();
             }
+
+            fetchAdvertiserPreferences(this);
             scanAdvertiser.start();
         }
 

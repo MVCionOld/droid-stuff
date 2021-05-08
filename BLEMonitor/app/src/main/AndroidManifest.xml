@@ -17,14 +17,15 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.BLEMonitor">
-        <activity android:name=".SenderActivity" />
-        <activity android:name=".ReceiverActivity" />
+        <activity android:name=".AdvertiserActivity" />
+        <activity android:name=".ScannerActivity" />
         <activity android:name=".ModeSelectorActivity" />
         <activity
             android:name=".ContactTracingActivity"
             android:label="Contact Traсing">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -33,6 +34,17 @@
             android:label="Main">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".PreferencesActivity"
+            android:label="Prefereces">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
